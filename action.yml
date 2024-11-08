@@ -11,7 +11,7 @@ outputs:
     description: where libraries are installed
     value: ${{ steps.set_output.outputs.libdir }}
   dynsuffix:
-    description: "the suffix of a shared library: so, dylib or dll"
+    description: "the extension used for shared libraries on this platform: so, dylib or dll"
     value: ${{ steps.set_output.outputs.dynsuffix }}
 
 runs:

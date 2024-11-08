@@ -54,10 +54,6 @@ configured through **hg_repo** or **git_repo**.
   built from these sources. This action will try to install build dependencies
   such as cmake. No default.  Cannot be used together with **version** or **rev**.
 
-* **prefix**: Directory prefix to install the binaries in. Defaults to
-  `/usr/local` on Linux and MacOS, `C:\Program Files\MonetDB\MonetDB5` on
-  Windows. Ignored when installing binary packages on Linux and MacOS.
-
 * **rev**: Revision to check out from **git_repo** or **hg_repo**. No default.
   Cannot be used together with **version** or **source**.
 
@@ -76,6 +72,9 @@ configured through **hg_repo** or **git_repo**.
 
 Outputs
 -------
+
+* **prefix**: Directory under which MonetDB will be installed.
+  For example, `/usr`, `/usr/local` or `C:\Program Files\MonetDB\MonetDB5`.
 
 * **bindir**: Directory where executables have been installed. Will contain for
   example `mclient` or `mclient.exe` on Windows.
