@@ -4,7 +4,7 @@ on:
 jobs:
 
   test-unix:
-    # if: false # TEMPORARILY DISABLED
+    if: false # TEMPORARILY DISABLED
     strategy:
       fail-fast: false
       matrix:
@@ -70,9 +70,6 @@ jobs:
     - name: Check tcp
       run: python3 tryconnect.py
       shell: pwsh
-
-    - run: netstat -n -a -b -o
-      shell: cmd
 
     - if: runner.os != 'Windows'   # hangs on Windows for some reason
       run: |

@@ -34,6 +34,8 @@ runs:
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output
+  # It's implemented as a composite action rather than a shell script
+  # because that's easier to debug
   - name: Windows MSI Install
     if: runner.os == 'Windows'
     uses: ./install-windows-bin

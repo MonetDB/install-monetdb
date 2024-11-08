@@ -1,5 +1,12 @@
 name: Install Windows Binaries
 description: sub-action for installing Windows binaries
+inputs:
+  prefix:
+    description: Where to install MonetDB (do not change)
+    default: C:\Program Files\MonetDB\MonetDB5
+  odbc_prefix:
+    description: Where to install the ODBC driver (do not change)
+    default: C:\Program Files\MonetDB\MonetDB ODBC Driver
 
 runs:
   using: "composite"
@@ -17,38 +24,38 @@ runs:
           $main_url="${{ steps.findmsi.outputs.main_msi }}"
           Write-Output "Download and install '$main_msi' from '$main_url'"
           (New-Object System.Net.WebClient).DownloadFile("$main_url","$main_msi");
-          $procMain = Start-Process "$main_msi" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
+          Start-Process "$main_msi" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
           #
           $odbc_msi="c:\monetdb-odbc.msi"
           $odbc_url="${{ steps.findmsi.outputs.odbc_msi }}"
           Write-Output "Download and install '$odbc_msi' from '$odbc_url'"
           (New-Object System.Net.WebClient).DownloadFile("$odbc_url","$odbc_msi");
-          $procMain = Start-Process "$odbc_msi" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
+          Start-Process "$odbc_msi" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
     shell: pwsh
 
   - name: Make sure embedded Python remains disabled
-    run: del "C:\Program Files\MonetDB\MonetDB5\pyapi_locatepython3.bat"
+    run: del "${{ inputs.prefix }}\pyapi_locatepython3.bat"
     shell: cmd
 
   - name: Set output parameters
     run: |
-      Add-Content github.output "prefix=C:\Program Files\MonetDB\MonetDB5"
-      Add-Content github.output "bindir=C:\Program Files\MonetDB\MonetDB5"
-      Add-Content github.output "includedir=C:\Program Files/MonetDB/MonetDB5/include"
-      Add-Content github.output "libdir=C:\Program Files\MonetDB\MonetDB5\bin"
+      Add-Content github.output "prefix=${{ inputs.prefix }}"
+      Add-Content github.output "bindir=${{ inputs.prefix }}"
+      Add-Content github.output "includedir=${{ inputs.prefix }}/include"
+      Add-Content github.output "libdir=${{ inputs.prefix }}\bin"
       Add-Content github.output "dynsuffix=dll"
       cat github.output
     shell: pwsh
 
   - name: Update PATH
     run: |
-      Add-Content $env:GITHUB_PATH "C:\Program Files\MonetDB\MonetDB5"
+      Add-Content $env:GITHUB_PATH "${{ inputs.prefix }}"
     shell: pwsh
 
   - name: Start the server
     run: |
       $opts = @{
-        FilePath = "C:\Program Files\MonetDB\MonetDB5\MSQLserver.bat"
+        FilePath = "${{ inputs.prefix }}\MSQLserver.bat"
         #NoNewWindow = $true
         #ArgumentList = "--set","embedded_py=false"
       }
