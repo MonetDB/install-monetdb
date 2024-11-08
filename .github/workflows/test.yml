@@ -3,7 +3,7 @@ on:
   push:
 jobs:
 
-  test-unix:
+  test-activity:
     strategy:
       fail-fast: false
       matrix:
@@ -12,10 +12,13 @@ jobs:
           - ubuntu-24.04        # intel
           - ubuntu-22.04        # intel
           - ubuntu-20.04        # intel
-          - macos-12            # intel
           - macos-13            # intel
-          - macos-14            # arm
+          - macos-12            # intel
           - macos-15            # arm
+          - macos-14            # arm
+          - windows-latest      # intel
+          - windows-2022        # intel
+          - windows-2019        # intel
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
@@ -26,52 +29,36 @@ jobs:
       id: thisaction
       uses: ./.
 
-    - name: create .monetdb
+    - name: Create .monetdb
       run: |
         echo user=monetdb >> $HOME/.monetdb
         echo password=monetdb >> $HOME/.monetdb
 
-    - run: uname -a; echo; id
-
-    - name: check outputs
+    - name: Check activity output parameters
+      if: runner.os != 'Windows'
       run: |
+        ls "${{ steps.thisaction.outputs.prefix }}"
         ls "${{ steps.thisaction.outputs.bindir }}/mclient"
         ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
         ls "${{ steps.thisaction.outputs.libdir }}/libmonetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
 
-    - run: mclient --version
-
-    - run: mclient -L- -d demo -s 'select * from environment'
-
-
-  test-windows:
-    runs-on: windows-latest
-    timeout-minutes: 2
-    steps:
-
-    - uses: actions/checkout@v4
-
-    - name: Run this action
-      id: thisaction
-      uses: ./.
-
-    - name: check output parameters
+    - name: Check activity output parameters
+      if: runner.os == 'Windows'
       run: |
         ls "${{ steps.thisaction.outputs.prefix }}"
         ls "${{ steps.thisaction.outputs.bindir }}/mclient.bat"
         ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
         ls "${{ steps.thisaction.outputs.libdir }}/monetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
 
-    - run: |
-        mclient --version
-      shell: cmd
+    - name: Test mclient --version
+      run: mclient --version
+
+    - name: Try to connect with mclient
+      # does not work on Windows yet, don't know why  :( :( :(
+      if: runner.os != 'Windows'
+      run: mclient -L- -d demo -s 'select * from environment'
 
     - name: Try to connect with pymonetdb
       run: |
         python3 -m pip install pymonetdb
         python3 verify-with-pymonetdb.py monetdb:///demo
-
-    - if: runner.os != 'Windows'   # hangs on Windows for some reason
-      run: |
-        mclient -L- -d monetdb://127.0.0.1/demo -s 'select * from environment'
-      shell: cmd
