@@ -58,7 +58,13 @@ jobs:
       if: runner.os != 'Windows'
       run: mclient -L- -d demo -s 'select * from environment'
 
+    - name: Set up venv
+      run: |
+        python3 -m venv venv
+        python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
+
     - name: Try to connect with pymonetdb
       run: |
-        python3 -m pip install pymonetdb
-        python3 verify-with-pymonetdb.py monetdb:///demo
+        python -m pip install pymonetdb
+        python verify-with-pymonetdb.py monetdb:///demo
+      shell: bash
