@@ -28,61 +28,9 @@ runs:
     run: ${{ github.action_path }}/install-macos-bin.sh
     shell: bash
 
-  - name: Find Windows MSI files
-    id: findmsi
-    if: runner.os == 'Windows'
-    # this script outputs main_msi=URL and odbc_msi=URL
-    run: python3 ${{ github.action_path }}\find-msi.py >>$env:GITHUB_OUTPUT
-    shell: pwsh
-
   - name: Windows MSI Install
     if: runner.os == 'Windows'
-    run: |
-          $main_msi="c:\monetdb.msi"
-          $main_url="${{ steps.findmsi.outputs.main_msi }}"
-          Write-Output "Download and install '$main_msi' from '$main_url'"
-          (New-Object System.Net.WebClient).DownloadFile("$main_url","$main_msi");
-          $procMain = Start-Process "$main_msi" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
-          #
-          $odbc_msi="c:\monetdb-odbc.msi"
-          $odbc_url="${{ steps.findmsi.outputs.odbc_msi }}"
-          Write-Output "Download and install '$odbc_msi' from '$odbc_url'"
-          (New-Object System.Net.WebClient).DownloadFile("$odbc_url","$odbc_msi");
-          $procMain = Start-Process "$odbc_msi" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
-    shell: pwsh
-
-  - name: Make sure embedded Python remains disabled
-    if: runner.os == 'Windows'
-    run: del "C:\Program Files\MonetDB\MonetDB5\pyapi_locatepython3.bat"
-    shell: cmd
-
-  - name: Set output parameters
-    if: runner.os == 'Windows'
-    run: |
-      Add-Content github.output "bindir=C:\Program Files\MonetDB\MonetDB5"
-      Add-Content github.output "includedir=C:\Program Files/MonetDB/MonetDB5/include"
-      Add-Content github.output "libdir=C:\Program Files\MonetDB\MonetDB5\bin"
-      Add-Content github.output "dynsuffix=dll"
-      cat github.output
-    shell: pwsh
-
-  - name: Update PATH
-    if: runner.os == 'Windows'
-    run: |
-      Add-Content $env:GITHUB_PATH "C:\Program Files\MonetDB\MonetDB5"
-    shell: pwsh
-
-  - name: Start the server
-    if: runner.os == 'Windows'
-    run: |
-      $opts = @{
-        FilePath = "C:\Program Files\MonetDB\MonetDB5\MSQLserver.bat"
-        #NoNewWindow = $true
-        #ArgumentList = "--set","embedded_py=false"
-      }
-      Start-Process @opts
-      python3 ${{ github.action_path }}\tryconnect.py
-    shell: pwsh
+    uses: ./install-windows-bin
 
   - name: Is it still running
     run: python3 ${{ github.action_path }}\tryconnect.py
