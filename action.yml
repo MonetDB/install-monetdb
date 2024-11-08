@@ -76,6 +76,11 @@ runs:
     if: runner.os == 'Windows'
     run: |
       Start-Process -FilePath "C:\Program Files\MonetDB\MonetDB5\MSQLserver.bat" -NoNewWindow -ArgumentList "--set","embedded_py=false"
+      python3 ${{ github.action_path }}\tryconnect.py
+    shell: pwsh
+
+  - name: Is it still running
+    run: python3 ${{ github.action_path }}\tryconnect.py
     shell: pwsh
 
   - name: Communicate bindir, libdir, includedir and dynsuffix

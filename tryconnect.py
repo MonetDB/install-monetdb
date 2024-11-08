@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import socket
+import time
 
 addrs = [
     ('::1', 50_000),
     ('127.0.0.1', 50_000),
 ]
+
+duration = 2.5
+print(f'Sleeping {duration}s')
+time.sleep(duration)
 
 for a in addrs:
     print(f"Connecting to {a}")
