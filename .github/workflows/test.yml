@@ -1,0 +1,83 @@
+name: Test the Install Action
+on:
+  push:
+jobs:
+
+  test-unix:
+    if: false # TEMPORARILY DISABLED
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest       # intel
+          - ubuntu-24.04        # intel
+          - ubuntu-22.04        # intel
+          - ubuntu-20.04        # intel
+          - macos-12            # intel
+          - macos-13            # intel
+          - macos-14            # arm
+          - macos-15            # arm
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Run this action
+      id: thisaction
+      uses: ./.
+
+    - name: create .monetdb
+      run: |
+        echo user=monetdb >> $HOME/.monetdb
+        echo password=monetdb >> $HOME/.monetdb
+
+    - run: uname -a; echo; id
+
+    - name: check outputs
+      run: |
+        ls "${{ steps.thisaction.outputs.bindir }}/mclient"
+        ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
+        ls "${{ steps.thisaction.outputs.libdir }}/libmonetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
+
+    - run: mclient --version
+
+    - run: mclient -L- -d demo -s 'select * from environment'
+
+
+  test-windows:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Run this action
+      id: thisaction
+      uses: ./.
+
+    - run: |
+        ls "C:/Program Files/MonetDB/MonetDB5"
+        ls "C:/Program Files/MonetDB/MonetDB5/bin"
+      shell: pwsh
+
+    - name: check output parameters
+      run: |
+        ls "${{ steps.thisaction.outputs.bindir }}/mclient.bat"
+        ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
+        ls "${{ steps.thisaction.outputs.libdir }}/monetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
+
+    - run: |
+        mclient --version
+      shell: cmd
+
+    - name: Check tcp
+      run: python3 tryconnect.py
+      shell: pwsh
+
+    - run: netstat -n -a -b -o
+      shell: cmd
+
+    - run: |
+        mclient -L- -d monetdb://127.0.0.1/demo -s 'select * from environment'
+      shell: cmd
