@@ -12,6 +12,7 @@ duration = 2.5
 print(f'Sleeping {duration}s')
 time.sleep(duration)
 
+ok = False
 for a in addrs:
     print(f"Connecting to {a}")
     try:
@@ -22,6 +23,10 @@ for a in addrs:
     local_addr = sock.getsockname()
     peer_addr = sock.getpeername()
     print(f"==> connected: local={local_addr}, peer={peer_addr}")
+    ok = True
     break
+
+if not ok:
+    exit(1)
 
 print("Bye")

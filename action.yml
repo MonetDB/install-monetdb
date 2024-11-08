@@ -75,7 +75,12 @@ runs:
   - name: Start the server
     if: runner.os == 'Windows'
     run: |
-      Start-Process -FilePath "C:\Program Files\MonetDB\MonetDB5\MSQLserver.bat" -NoNewWindow -ArgumentList "--set","embedded_py=false"
+      $opts = @{
+        FilePath = "C:\Program Files\MonetDB\MonetDB5\MSQLserver.bat"
+        NoNewWindow = $true
+        ArgumentList = "--set","embedded_py=false"
+      }
+      Start-Process @opts
       python3 ${{ github.action_path }}\tryconnect.py
     shell: pwsh
 
