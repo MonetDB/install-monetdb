@@ -40,8 +40,8 @@ runs:
     if: runner.os == 'Windows'
     uses: ./install-windows-bin
 
-  - name: Is it still running
-    run: python3 ${{ github.action_path }}/tryconnect.py
+  - name: Check whether the server is really running
+    run: python3 ${{ github.action_path }}/connect-to-socket.py
     shell: pwsh
 
   # This step picks up the github.output file generated

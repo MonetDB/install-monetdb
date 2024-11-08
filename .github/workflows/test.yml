@@ -4,7 +4,6 @@ on:
 jobs:
 
   test-unix:
-    if: false # TEMPORARILY DISABLED
     strategy:
       fail-fast: false
       matrix:
@@ -67,9 +66,10 @@ jobs:
         mclient --version
       shell: cmd
 
-    - name: Check tcp
-      run: python3 tryconnect.py
-      shell: pwsh
+    - name: Try to connect with pymonetdb
+      run: |
+        python3 -m pip install pymonetdb
+        python3 verify-with-pymonetdb.py monetdb:///demo
 
     - if: runner.os != 'Windows'   # hangs on Windows for some reason
       run: |
