@@ -18,7 +18,8 @@ sudo apt-get -qy install monetdb-server monetdb-client libmonetdbe-dev
 
 # Borrow exact installation directory from libz
 sudo apt-get -qy install pkg-config libz-dev
-echo "bindir=/usr/bin"  >>github.output
+echo "prefix=/usr" >>github.output
+echo "bindir=$prefix/bin"  >>github.output
 echo "includedir=$(pkg-config --variable=includedir zlib)" >>github.output
 echo "libdir=$(pkg-config --variable=libdir zlib)" >>github.output
 echo "dynsuffix=so" >>github.output

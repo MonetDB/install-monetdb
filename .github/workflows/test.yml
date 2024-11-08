@@ -4,7 +4,7 @@ on:
 jobs:
 
   test-unix:
-    if: false # TEMPORARILY DISABLED
+    # if: false # TEMPORARILY DISABLED
     strategy:
       fail-fast: false
       matrix:
@@ -56,13 +56,9 @@ jobs:
       id: thisaction
       uses: ./.
 
-    - run: |
-        ls "C:/Program Files/MonetDB/MonetDB5"
-        ls "C:/Program Files/MonetDB/MonetDB5/bin"
-      shell: pwsh
-
     - name: check output parameters
       run: |
+        ls "${{ steps.thisaction.outputs.prefix }}"
         ls "${{ steps.thisaction.outputs.bindir }}/mclient.bat"
         ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
         ls "${{ steps.thisaction.outputs.libdir }}/monetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
@@ -78,6 +74,7 @@ jobs:
     - run: netstat -n -a -b -o
       shell: cmd
 
-    - run: |
+    - if: runner.os != 'Windows'   # hangs on Windows for some reason
+      run: |
         mclient -L- -d monetdb://127.0.0.1/demo -s 'select * from environment'
       shell: cmd

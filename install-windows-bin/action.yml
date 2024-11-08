@@ -32,6 +32,7 @@ runs:
 
   - name: Set output parameters
     run: |
+      Add-Content github.output "prefix=C:\Program Files\MonetDB\MonetDB5"
       Add-Content github.output "bindir=C:\Program Files\MonetDB\MonetDB5"
       Add-Content github.output "includedir=C:\Program Files/MonetDB/MonetDB5/include"
       Add-Content github.output "libdir=C:\Program Files\MonetDB\MonetDB5\bin"

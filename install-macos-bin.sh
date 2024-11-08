@@ -15,7 +15,9 @@ monetdbd start "$DBFARM"
 
 monetdb create -pmonetdb demo monetdb
 
-echo "bindir=$(brew --prefix)/bin" >>github.output
-echo "includedir=$(brew --prefix)/include" >>github.output
-echo "libdir=$(brew --prefix)/lib" >>github.output
+prefix="$(brew --prefix)"
+echo "prefix=$prefix" >>github.output
+echo "bindir=$prefix/bin" >>github.output
+echo "includedir=$prefix/include" >>github.output
+echo "libdir=$prefix/lib" >>github.output
 echo "dynsuffix=dylib" >>github.output
