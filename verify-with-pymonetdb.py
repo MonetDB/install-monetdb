@@ -5,6 +5,7 @@ import pymonetdb
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('url')
+argparser.add_argument('--expect-version')
 
 def main(args):
     with pymonetdb.connect(args.url) as conn, conn.cursor() as c:
@@ -22,6 +23,13 @@ def main(args):
             print(f'peer={peer}')
         except pymonetdb.Error:
             pass
+
+    if args.expect_version:
+        expected = args.expect_version
+        actual = props['monet_version']
+        if actual != expected:
+            print(f'VERSION MISMATCH: expected {expected!r}, found {actual!r}')
+            return 1
 
 
 if __name__ == "__main__":

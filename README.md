@@ -4,8 +4,13 @@ A GitHub Action to install MonetDB
 > **NOTE** This Action is in its early stages.
 >
 > This document describes the way it is intended to work, not how it currently
-> works. Right now, only binary installs work, nothing is configurable and no
-> server is started on Windows.
+> works.
+>
+> 1. Everything described below about installing from source has not been
+>    implemented yet.
+> 2. On Windows, `mclient` does not work, for unclear reasons.
+> 3. On MacOS, only the latest version can be installed because earlier versions
+>    are no longer available through Homebrew.
 
 
 This [GitHub Action] installs [MonetDB].
@@ -17,7 +22,7 @@ For example,
     runs-on: ubuntu-latest
     steps:
     - uses: MonetDB/install-monetdb@v1
-    - run: mclient -d demo 'SELECT * FROM environment'
+    - run: mclient -d demo -s 'SELECT * FROM environment'
 ```
 
 The step `uses: MonetDB/install-monetdb@v1` takes care of

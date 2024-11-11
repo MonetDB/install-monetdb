@@ -3,7 +3,15 @@ on:
   push:
 jobs:
 
-  test-activity:
+  documentation-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.
+      - run: mclient -d demo -s 'SELECT * FROM environment'
+
+
+  test-basics:
     strategy:
       fail-fast: false
       matrix:
@@ -25,14 +33,9 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: Run this action
+    - name: Run the action
       id: thisaction
       uses: ./.
-
-    - name: Create .monetdb
-      run: |
-        echo user=monetdb >> $HOME/.monetdb
-        echo password=monetdb >> $HOME/.monetdb
 
     - name: Check activity output parameters
       if: runner.os != 'Windows'
@@ -58,7 +61,7 @@ jobs:
       if: runner.os != 'Windows'
       run: mclient -L- -d demo -s 'select * from environment'
 
-    - name: Set up venv
+    - name: Set up venv for pymonetdb
       run: |
         python3 -m venv venv
         python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
@@ -66,5 +69,46 @@ jobs:
     - name: Try to connect with pymonetdb
       run: |
         python -m pip install pymonetdb
-        python verify-with-pymonetdb.py monetdb:///demo
+        python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
+      shell: bash
+
+
+  test-withversion:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          # - macos-latest
+          - windows-latest
+    env:
+      # Since Aug2024-SP1 (11.51.5) has been release, Aug2024 (11.51.3) is no
+      # longer the default version.
+      MDB_RELEASE: Aug2024
+      EXPECTED_VERSION: 11.51.3
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Run the action with
+      id: thisaction
+      uses: ./.
+      with:
+        version: "${{ env.MDB_RELEASE }}"
+
+    - name: Quick version check
+      run: test "x${{ steps.thisaction.outputs.versionnumber }}" = "x${{ env.EXPECTED_VERSION }}"
+      shell: bash
+
+    - name: Set up venv for pymonetdb
+      run: |
+        python3 -m venv venv
+        python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
+
+    - name: Try to connect with pymonetdb
+      run: |
+        python -m pip install pymonetdb
+        python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
       shell: bash

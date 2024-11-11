@@ -1,5 +1,10 @@
 name: Install MonetDB
 description: Install MonetDB and make it ready for use
+inputs:
+  version:
+    description: "Version of MonetDB to install"
+    required: false
+    default: Latest
 outputs:
   prefix:
     description: directory prefix under which everything has been installed
@@ -16,21 +21,34 @@ outputs:
   dynsuffix:
     description: "the extension used for shared libraries on this platform: so, dylib or dll"
     value: ${{ steps.set_output.outputs.dynsuffix }}
+  versionnumber:
+    description: "installed version of MonetDB, for example 11.51.5"
+    value: ${{ steps.versionlookup.outputs.numeric }}
+
+# input: version
+# output: version_number
 
 runs:
   using: "composite"
   steps:
 
+  # this step has outputs 'numeric'
+  - id: versionlookup
+    run: |
+      python3 lookup-version.py "${{ inputs.version }}" ${{ runner.os == 'Windows' && '--msi' || '' }} >>$GITHUB_OUTPUT
+      cat $GITHUB_OUTPUT
+    shell: bash
+
   # This step leaves GITHUB_OUTPUT in the file github.output
   - name: Linux Package Install
     if: runner.os == 'Linux'
-    run: ${{ github.action_path }}/install-linux-bin.sh
+    run: ${{ github.action_path }}/install-linux-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output
   - name: MacOS Homebrew Install
     if: runner.os == 'macOS'
-    run: ${{ github.action_path }}/install-macos-bin.sh
+    run: ${{ github.action_path }}/install-macos-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output
@@ -39,9 +57,32 @@ runs:
   - name: Windows MSI Install
     if: runner.os == 'Windows'
     uses: ./install-windows-bin
+    with:
+      main_msi_url: "${{ steps.versionlookup.outputs.main_msi }}"
+      odbc_msi_url: "${{ steps.versionlookup.outputs.odbc_msi }}"
 
   - name: Check whether the server is really running
     run: python3 ${{ github.action_path }}/connect-to-socket.py
+    shell: pwsh
+
+  - name: Create .monetdb
+    run: |
+      echo user=monetdb >> $HOME/.monetdb
+      echo password=monetdb >> $HOME/.monetdb
+    shell: bash
+
+  - name: Create a scratch venv
+    run: |
+      cd "${{ github.action_path }}"
+      python3 -m venv venv
+      python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
+    shell: pwsh
+
+  - name: Verify that the correct version has been installed
+    run: |
+      cd "${{ github.action_path }}"
+      python -m pip install pymonetdb
+      python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.versionlookup.outputs.numeric }}"
     shell: pwsh
 
   # This step picks up the github.output file generated

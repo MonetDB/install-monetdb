@@ -190,6 +190,8 @@ class VersionInfo:
         # This one is the hardest because the website only has a mapping name->num.
         # We'll use bisection.
 
+        logger.info(f"Looking up release name of version {numeric!r}")
+
         # This is what we're looking for
         desired = split_numeric(numeric)
 
@@ -197,7 +199,7 @@ class VersionInfo:
         candidates = self.lookup_releases()
 
         # And this is what we compare
-        @functools.cache
+        @functools.lru_cache(maxsize=1000)
         def name2num(name):
             num = self.lookup_numeric(name)
             return split_numeric(num)
