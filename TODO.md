@@ -1,3 +1,13 @@
+
+get mclient working on Windows
+
+obey version number
+to do so, figure out mapping between names and numbers
+
+
+
+
+
 TODO
 ====
 
