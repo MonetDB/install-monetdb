@@ -26,7 +26,6 @@ The mapping 11.51.5 -> Aug2024-SP1 is also done by scraping ../downloads/sources
 
 
 import argparse
-import bisect
 import functools
 import html.parser
 import logging
@@ -195,19 +194,24 @@ class VersionInfo:
         desired = split_numeric(numeric)
 
         # This is what we're searching
-        haystack = self.lookup_releases()
+        candidates = self.lookup_releases()
 
         # And this is what we compare
         @functools.cache
-        def key_function(name):
+        def name2num(name):
             num = self.lookup_numeric(name)
             return split_numeric(num)
 
-        pos = bisect.bisect_left(haystack, desired, key=key_function)
-        if pos < len(haystack):
-            candidate = haystack[pos]
-            candidate_key = key_function(candidate)
-            if candidate_key == desired:
+        while len(candidates) > 0:
+            pos = len(candidates) // 2
+            candidate = candidates[pos]
+            num = name2num(candidate)
+            if desired < num:
+                # discard high side
+                candidates = candidates[:pos]
+            elif desired > num:
+                candidates = candidates[pos + 1:]
+            else:
                 return candidate
 
         # Not found
