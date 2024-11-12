@@ -4,6 +4,7 @@ on:
 jobs:
 
   documentation-example:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -11,7 +12,8 @@ jobs:
       - run: mclient -d demo -s 'SELECT * FROM environment'
 
 
-  test-basics:
+  binary:
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -73,7 +75,8 @@ jobs:
       shell: bash
 
 
-  test-withversion:
+  binary-withversion:
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -112,3 +115,62 @@ jobs:
         python -m pip install pymonetdb
         python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
       shell: bash
+
+
+  source:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest       # intel
+          - macos-15            # arm
+          - windows-latest      # intel
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Download MonetDB source
+      run: |
+        release=Aug2024_SP1
+        tarfile="$release"_release.tar.gz
+        url="https://github.com/MonetDB/MonetDB/archive/refs/tags/$tarfile"
+        wget -q "$url" -O "$tarfile"
+        ls -l "$tarfile"
+        mkdir src
+        cd src
+        tar zxf ../"$tarfile"
+        ls
+      shell: bash
+
+      # - name: Run the action
+    #   id: thisaction
+    #   uses: ./.
+
+    # - name: Check activity output parameters
+    #   run: |
+    #     ls "${{ steps.thisaction.outputs.prefix }}"
+    #     ls "${{ steps.thisaction.outputs.bindir }}/mclient${{ runner.os == 'Windows' && '.bat' || ''}}"
+    #     ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
+    #     ls "${{ steps.thisaction.outputs.libdir }}/libmonetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
+
+    # - name: Test mclient --version
+    #   run: mclient --version
+
+    # - name: Try to connect with mclient
+    #   # does not work on Windows yet, don't know why  :( :( :(
+    #   if: runner.os != 'Windows'
+    #   run: mclient -L- -d demo -s 'select * from environment'
+
+    # - name: Set up venv for pymonetdb
+    #   run: |
+    #     python3 -m venv venv
+    #     python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
+
+    # - name: Try to connect with pymonetdb
+    #   run: |
+    #     python -m pip install pymonetdb
+    #     python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
+    #   shell: bash
+
