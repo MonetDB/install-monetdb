@@ -41,7 +41,7 @@ runs:
     run: |
       Add-Content github.output "prefix=${{ inputs.prefix }}"
       Add-Content github.output "bindir=${{ inputs.prefix }}"
-      Add-Content github.output "includedir=${{ inputs.prefix }}/include"
+      Add-Content github.output "includedir=${{ inputs.prefix }}/include/monetdb"
       Add-Content github.output "libdir=${{ inputs.prefix }}\bin"
       Add-Content github.output "dynsuffix=dll"
       cat github.output

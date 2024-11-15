@@ -52,8 +52,8 @@ sudo apt-get -qy install "${packages[@]}"
 
 # Borrow exact installation directory from libz
 echo "prefix=/usr" >>github.output
-echo "bindir=$prefix/bin"  >>github.output
-echo "includedir=$(pkg-config --variable=includedir zlib)" >>github.output
+echo "bindir=/usr/bin"  >>github.output
+echo "includedir=$(pkg-config --variable=includedir zlib)/monetdb" >>github.output
 echo "libdir=$(pkg-config --variable=libdir zlib)" >>github.output
 echo "dynsuffix=so" >>github.output
 

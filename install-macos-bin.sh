@@ -35,6 +35,6 @@ monetdb create -pmonetdb demo monetdb
 prefix="$(brew --prefix)"
 echo "prefix=$prefix" >>github.output
 echo "bindir=$prefix/bin" >>github.output
-echo "includedir=$prefix/include" >>github.output
+echo "includedir=$prefix/include/monetdb" >>github.output
 echo "libdir=$prefix/lib" >>github.output
 echo "dynsuffix=dylib" >>github.output
