@@ -88,7 +88,7 @@ Outputs
   example `libmonetdbe.so`, `libmonetdbe.dylib` or `monetdbe.dll`.
 
 * **includedir**: Directory where header files have been installed. Will contain
-  for example `monetdb/monetdb_config.h`.
+  for example `monetdbe_config.h`.
 
 
 Example

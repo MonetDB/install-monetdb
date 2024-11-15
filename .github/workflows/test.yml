@@ -4,7 +4,7 @@ on:
 jobs:
 
   documentation-example:
-    if: false
+    if: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,22 +13,22 @@ jobs:
 
 
   binary:
-    if: false
+    if: true
     strategy:
       fail-fast: false
       matrix:
         os:
           - ubuntu-latest       # intel
-          - ubuntu-24.04        # intel
-          - ubuntu-22.04        # intel
-          - ubuntu-20.04        # intel
-          - macos-13            # intel
-          - macos-12            # intel
-          - macos-15            # arm
-          - macos-14            # arm
-          - windows-latest      # intel
-          - windows-2022        # intel
-          - windows-2019        # intel
+          #- ubuntu-24.04        # intel
+          #- ubuntu-22.04        # intel
+          #- ubuntu-20.04        # intel
+          #- macos-13            # intel
+          #- macos-12            # intel
+          #- macos-15            # arm
+          #- macos-14            # arm
+          #- windows-latest      # intel
+          #- windows-2022        # intel
+          #- windows-2019        # intel
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
@@ -40,20 +40,11 @@ jobs:
       uses: ./.
 
     - name: Check activity output parameters
-      if: runner.os != 'Windows'
       run: |
         ls "${{ steps.thisaction.outputs.prefix }}"
-        ls "${{ steps.thisaction.outputs.bindir }}/mclient"
-        ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
-        ls "${{ steps.thisaction.outputs.libdir }}/libmonetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
-
-    - name: Check activity output parameters
-      if: runner.os == 'Windows'
-      run: |
-        ls "${{ steps.thisaction.outputs.prefix }}"
-        ls "${{ steps.thisaction.outputs.bindir }}/mclient.bat"
-        ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
-        ls "${{ steps.thisaction.outputs.libdir }}/monetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
+        ls "${{ steps.thisaction.outputs.bindir }}/mclient${{ runner.os == 'Windows' && '.bat' || ''}}.bat"
+        ls "${{ steps.thisaction.outputs.includedir }}/monetdbe.h"
+        ls "${{ steps.thisaction.outputs.libdir }}/${{ runner.os != 'Windows' && 'lib' || '' }}monetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
 
     - name: Test mclient --version
       run: mclient --version
@@ -118,6 +109,7 @@ jobs:
 
 
   source:
+    if: false
     strategy:
       fail-fast: false
       matrix:
