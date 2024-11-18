@@ -35,9 +35,11 @@ runs:
   # this step has outputs 'numeric'
   - id: versionlookup
     run: |
-      python3 lookup-version.py "${{ inputs.version }}" ${{ runner.os == 'Windows' && '--msi' || '' }} >>$GITHUB_OUTPUT
-      cat $GITHUB_OUTPUT
-    shell: bash
+      cd ${{ github.action_path }}
+      python3 lookup-version.py "${{ inputs.version }}" ${{ runner.os == 'Windows' && '--msi' || '' }} >version.output
+      cat version.output
+      cat version.output >>$env:GITHUB_OUTPUT
+    shell: pwsh
 
   # This step leaves GITHUB_OUTPUT in the file github.output
   - name: Linux Package Install
@@ -56,7 +58,7 @@ runs:
   # because that's easier to debug
   - name: Windows MSI Install
     if: runner.os == 'Windows'
-    uses: ./install-windows-bin
+    uses: install-windows-bin
     with:
       main_msi_url: "${{ steps.versionlookup.outputs.main_msi }}"
       odbc_msi_url: "${{ steps.versionlookup.outputs.odbc_msi }}"
