@@ -3,8 +3,29 @@ on:
   push:
 jobs:
 
+  aaa:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-20.04
+          - ubuntu-latest
+        include:
+          # the 'container' attribute is the string representation of the
+          # desired container: setting. Usually it's null which means
+          # 'no container' but for Linux we set it to manylinux_2_28.
+          - container: "null"
+          - os: ubuntu-latest
+            container: '{ "image": "quay.io/pypa/manylinux_2_28_x86_64" }'
+    env:
+      containerjson: "joeri"
+    runs-on: ${{ matrix.os }}
+    container: ${{ fromJSON(matrix.container) }}
+    steps:
+      - run: cat /etc/os-release
+      - run: echo "runs-on=${{matrix.os}} container=${{matrix.container}}"
+
   documentation-example:
-    if: true
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,16 +39,25 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - ubuntu-latest       # intel, will be mapped to manylinux container
           - ubuntu-24.04        # intel
-          - ubuntu-22.04        # intel
-          - ubuntu-20.04        # intel
-          - macos-13            # intel
-          #- macos-12            # intel disabled because it builds monetdb from source
-          - macos-15            # arm
-          - macos-14            # arm
+          ### - ubuntu-22.04        # intel
+          ### - ubuntu-20.04        # intel
+          ### - macos-13            # intel
+          ### #- macos-12            # intel disabled because it builds monetdb from source
+          ### - macos-15            # arm
+          ### - macos-14            # arm
           - windows-2022        # intel
-          - windows-2019        # intel
+          ### - windows-2019        # intel
+        include:
+          # the 'container' attribute is the string representation of the
+          # desired container: setting. Usually it's null which means
+          # 'no container' but for Linux we set it to manylinux_2_28.
+          - container: "null"
+          - os: ubuntu-latest
+            container: '{ "image": "quay.io/pypa/manylinux_2_28_x86_64" }'
     runs-on: ${{ matrix.os }}
+    container: ${{ fromJSON(matrix.container) }}
     timeout-minutes: 5
     steps:
 
@@ -65,7 +95,7 @@ jobs:
 
 
   binary-withversion:
-    if: true
+    if: false
     strategy:
       fail-fast: false
       matrix:

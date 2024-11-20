@@ -54,6 +54,7 @@ install_debs() {
 
 
 install_rpms() {
+    yum -y install sudo   # needed in manylinux container
     yum -y install https://dev.monetdb.org/downloads/epel/MonetDB-release-epel.noarch.rpm
     rpm --import https://dev.monetdb.org/downloads/MonetDB-GPG-KEY
     pkgs=(
@@ -88,5 +89,16 @@ echo "dynsuffix=so" >>github.output
 
 # Start and create database
 sudo systemctl enable monetdbd
-sudo systemctl start monetdbd
+if sudo systemctl start monetdbd; then
+    # running on a 'real' host
+    true
+else
+    # probably running in a container where pid 1 is not systemd
+    DBFARM=/usr/local/dbfarm
+    sudo mkdir "$DBFARM"
+    sudo chown monetdb:monetdb "$DBFARM"
+    sudo -u monetdb monetdbd create "$DBFARM"
+    sudo -u monetdb monetdbd start "$DBFARM"
+fi
+
 sudo -u monetdb monetdb create -pmonetdb demo monetdb

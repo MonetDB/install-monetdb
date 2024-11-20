@@ -42,13 +42,17 @@ runs:
   # This step leaves GITHUB_OUTPUT in the file github.output
   - name: Linux Package Install
     if: runner.os == 'Linux'
-    run: ${{ github.action_path }}/install-linux-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
+    run: |
+      echo "$GITHUB_ACTION_PATH"
+      ls "$GITHUB_ACTION_PATH"
+      "$GITHUB_ACTION_PATH"/install-linux-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output
   - name: MacOS Homebrew Install
     if: runner.os == 'macOS'
-    run: ${{ github.action_path }}/install-macos-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
+    run: |
+      "$GITHUB_ACTION_PATH"/install-macos-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output.
