@@ -6,22 +6,16 @@ Windows need.
 
 Usage: map-monet-version [--msi] [VERSION_STRING]
 
-VERSION_STRING: nothing, '', 'latest', '11.51.5', 'Aug2024-SP1' or 'Aug2024_SP1'.
+VERSION_STRING: nothing, '', 'latest', or for example '11.51.5', 'Aug2024-SP1'
+or 'Aug2024_SP1'.
 
 The mapping is performed by scraping https://www.monetdb.org/downloads/.
 
-Output:
-apt_suffix= or apt_suffix===11.51.5
-homebrew_suffix= or homebrew_suffix=11.51.5
-(optional) main_msi_url=https://...
-(optional) odbc_msi_url=https://...
-
-The mapping Aug2024-SP1 -> 11.51.5 is done by scraping ../downloads/sources/.
-
-The mapping Aug2024-SP1 -> MonetDB-ODBC-Installer-x86_64-20240502.msi is done
-by scraping ../downloads/Windows.
-
-The mapping 11.51.5 -> Aug2024-SP1 is also done by scraping ../downloads/sources.
+Output: something like:
+    numeric=11.51.5
+    name=Aug2024-SP1
+    main_msi=https://www.monetdb.org/downloads/Windows/Aug2024-SP1/MonetDB5-SQL-Installer-x86_64-20241024.msi
+    odbc_msi=https://www.monetdb.org/downloads/Windows/Aug2024-SP1/MonetDB-ODBC-Installer-x86_64-20241024.msi
 """
 
 
