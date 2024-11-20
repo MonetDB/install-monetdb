@@ -4,7 +4,7 @@ on:
 jobs:
 
   documentation-example:
-    if: false
+    if: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,17 +17,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:  # just use -latest for now because those have the most runners available
-          - windows-latest
-          # - ubuntu-24.04        # intel
-          # - ubuntu-22.04        # intel
-          # - ubuntu-20.04        # intel
-          # - macos-13            # intel
-          # #- macos-12            # intel disabled because it builds monetdb from source
-          # - macos-15            # arm
-          # - macos-14            # arm
-          # - windows-2022        # intel
-          # - windows-2019        # intel
+        os:
+          - ubuntu-24.04        # intel
+          - ubuntu-22.04        # intel
+          - ubuntu-20.04        # intel
+          - macos-13            # intel
+          #- macos-12            # intel disabled because it builds monetdb from source
+          - macos-15            # arm
+          - macos-14            # arm
+          - windows-2022        # intel
+          - windows-2019        # intel
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
@@ -66,13 +65,13 @@ jobs:
 
 
   binary-withversion:
-    if: false
+    if: true
     strategy:
       fail-fast: false
       matrix:
         os:
-          # - ubuntu-latest
-          # - macos-latest
+          - ubuntu-latest
+          # macos-latest (Our Homebrew only supports installing the latest)
           - windows-latest
     env:
       # Since Aug2024-SP1 (11.51.5) has been release, Aug2024 (11.51.3) is no
