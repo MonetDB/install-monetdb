@@ -35,11 +35,9 @@ runs:
   # this step has outputs 'numeric'
   - id: versionlookup
     run: |
-      cd ${{ github.action_path }}
-      python3 lookup-version.py "${{ inputs.version }}" ${{ runner.os == 'Windows' && '--msi' || '' }} >version.output
-      cat version.output
-      cat version.output >>$env:GITHUB_OUTPUT
-    shell: pwsh
+      python3 "$GITHUB_ACTION_PATH"/lookup-version.py "${{ inputs.version }}" ${{ runner.os == 'Windows' && '--msi' || '' }} >"$GITHUB_OUTPUT"
+      cat "$GITHUB_OUTPUT"
+    shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output
   - name: Linux Package Install
@@ -54,15 +52,15 @@ runs:
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output.
-  # It also updates the PATH
+  # It also updates $GITHUP_PATH.
   - name: Windows MSI Install
     if: runner.os == 'Windows'
     run: ${{ github.action_path}}\install-windows-bin.ps1 "${{ steps.versionlookup.outputs.main_msi }}" "${{ steps.versionlookup.outputs.odbc_msi }}"
     shell: pwsh
 
   - name: Check whether the server is really running
-    run: python3 ${{ github.action_path }}/connect-to-socket.py
-    shell: pwsh
+    run: python3 "$GITHUB_ACTION_PATH"/connect-to-socket.py
+    shell: bash
 
   - name: Create .monetdb
     run: |
@@ -70,19 +68,17 @@ runs:
       echo password=monetdb >> $HOME/.monetdb
     shell: bash
 
-  - name: Create a scratch venv
+  - name: Create a scratch venv and activate it in further steps
     run: |
-      cd "${{ github.action_path }}"
-      python3 -m venv venv
-      python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
-    shell: pwsh
+      python3 -m venv "$GITHUB_ACTION_PATH"/venv
+      echo "$GITHUB_ACTION_PATH"/venv/bin >>$GITHUB_PATH
+    shell: bash
 
   - name: Verify that the correct version has been installed
     run: |
-      cd "${{ github.action_path }}"
       python -m pip install pymonetdb
       python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.versionlookup.outputs.numeric }}"
-    shell: pwsh
+    shell: bash
 
   # This step picks up the github.output file generated
   # by the earlier install step
