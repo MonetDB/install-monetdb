@@ -53,15 +53,12 @@ runs:
     run: ${{ github.action_path }}/install-macos-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
     shell: bash
 
-  # This step leaves GITHUB_OUTPUT in the file github.output
-  # It's implemented as a composite action rather than a shell script
-  # because that's easier to debug
+  # This step leaves GITHUB_OUTPUT in the file github.output.
+  # It also updates the PATH
   - name: Windows MSI Install
     if: runner.os == 'Windows'
-    uses: install-windows-bin
-    with:
-      main_msi_url: "${{ steps.versionlookup.outputs.main_msi }}"
-      odbc_msi_url: "${{ steps.versionlookup.outputs.odbc_msi }}"
+    run: ${{ github.action_path}}\install-windows-bin.ps1 "${{ steps.versionlookup.outputs.main_msi }}" "${{ steps.versionlookup.outputs.odbc_msi }}"
+    shell: pwsh
 
   - name: Check whether the server is really running
     run: python3 ${{ github.action_path }}/connect-to-socket.py
