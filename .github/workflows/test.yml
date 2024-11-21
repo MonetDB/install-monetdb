@@ -94,13 +94,10 @@ jobs:
       run: test "x${{ steps.thisaction.outputs.versionnumber }}" = "x${{ env.EXPECTED_VERSION }}"
       shell: bash
 
-    - name: Set up venv for pymonetdb
-      run: |
-        python3 -m venv venv
-        python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
-
     - name: Try to connect with pymonetdb
       run: |
+        ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m venv "$RUNNER_TEMP"/venv
+        . "$RUNNER_TEMP/venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/activate"
         python -m pip install pymonetdb
         python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
       shell: bash

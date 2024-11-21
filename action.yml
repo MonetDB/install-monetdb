@@ -68,14 +68,18 @@ runs:
       echo password=monetdb >> $HOME/.monetdb
     shell: bash
 
-  - name: Create a scratch venv and activate it in further steps
+  - name: Create a scratch venv
+    id: venv
+    # The python / python3 conditional is needed on windows-2019 runners
     run: |
-      python3 -m venv "$GITHUB_ACTION_PATH"/venv
-      echo "$GITHUB_ACTION_PATH"/venv/bin >>$GITHUB_PATH
+      ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m venv "$RUNNER_TEMP"/install-monetdb-venv
+      echo "activate=$RUNNER_TEMP/install-monetdb-venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/activate" >>"$GITHUB_OUTPUT"
+
     shell: bash
 
   - name: Verify that the correct version has been installed
     run: |
+      . '${{ steps.venv.outputs.activate }}'
       python -m pip install pymonetdb
       python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.versionlookup.outputs.numeric }}"
     shell: bash
