@@ -3,29 +3,8 @@ on:
   push:
 jobs:
 
-  aaa:
-    strategy:
-      matrix:
-        os:
-          - ubuntu-20.04
-          - ubuntu-latest
-        include:
-          # the 'container' attribute is the string representation of the
-          # desired container: setting. Usually it's null which means
-          # 'no container' but for Linux we set it to manylinux_2_28.
-          - container: "null"
-          - os: ubuntu-latest
-            container: '{ "image": "quay.io/pypa/manylinux_2_28_x86_64" }'
-    env:
-      containerjson: "joeri"
-    runs-on: ${{ matrix.os }}
-    container: ${{ fromJSON(matrix.container) }}
-    steps:
-      - run: cat /etc/os-release
-      - run: echo "runs-on=${{matrix.os}} container=${{matrix.container}}"
-
   documentation-example:
-    if: false
+    if: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,16 +18,16 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest       # intel, will be mapped to manylinux container
+          - ubuntu-latest       # intel, the include: setting maps this to the manylinux container
           - ubuntu-24.04        # intel
-          ### - ubuntu-22.04        # intel
-          ### - ubuntu-20.04        # intel
-          ### - macos-13            # intel
-          ### #- macos-12            # intel disabled because it builds monetdb from source
-          ### - macos-15            # arm
-          ### - macos-14            # arm
+          - ubuntu-22.04        # intel
+          - ubuntu-20.04        # intel
+          - macos-13            # intel
+          #- macos-12            # intel disabled because it builds monetdb from source
+          - macos-15            # arm
+          - macos-14            # arm
           - windows-2022        # intel
-          ### - windows-2019        # intel
+          - windows-2019        # intel
         include:
           # the 'container' attribute is the string representation of the
           # desired container: setting. Usually it's null which means
@@ -77,38 +56,37 @@ jobs:
     - name: Test mclient --version
       run: mclient --version
 
-    - name: Try to connect with mclient
-      # does not work on Windows yet, don't know why  :( :( :(
-      if: runner.os != 'Windows'
-      run: mclient -L- -d demo -s 'select * from environment'
-
-    - name: Set up venv for pymonetdb
-      run: |
-        python3 -m venv venv
-        python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
-
     - name: Try to connect with pymonetdb
       run: |
+        ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m venv "$RUNNER_TEMP"/venv
+        . "$RUNNER_TEMP/venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/activate"
         python -m pip install pymonetdb
         python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
       shell: bash
 
 
   binary-withversion:
-    if: false
+    if: true
     strategy:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          # macos-latest (Our Homebrew only supports installing the latest)
+          - ubuntu-latest       # the include: setting maps this to the manylinux container
+          - ubuntu-24.04
           - windows-latest
+          # exclude macos-latest for now, our Homebrew only supports installing the latest
+        include:
+          # see above
+          - container: "null"
+          - os: ubuntu-latest
+            container: '{ "image": "quay.io/pypa/manylinux_2_28_x86_64" }'
     env:
       # Since Aug2024-SP1 (11.51.5) has been release, Aug2024 (11.51.3) is no
       # longer the default version.
       MDB_RELEASE: Aug2024
       EXPECTED_VERSION: 11.51.3
     runs-on: ${{ matrix.os }}
+    container: ${{ fromJSON(matrix.container) }}
     timeout-minutes: 5
     steps:
 
@@ -131,63 +109,4 @@ jobs:
         python -m pip install pymonetdb
         python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
       shell: bash
-
-
-  source:
-    if: false
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest       # intel
-          - macos-15            # arm
-          - windows-latest      # intel
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
-    steps:
-
-    - uses: actions/checkout@v4
-
-    - name: Download MonetDB source
-      run: |
-        release=Aug2024_SP1
-        tarfile="$release"_release.tar.gz
-        url="https://github.com/MonetDB/MonetDB/archive/refs/tags/$tarfile"
-        wget -q "$url" -O "$tarfile"
-        ls -l "$tarfile"
-        mkdir src
-        cd src
-        tar zxf ../"$tarfile"
-        ls
-      shell: bash
-
-      # - name: Run the action
-    #   id: thisaction
-    #   uses: ./.
-
-    # - name: Check activity output parameters
-    #   run: |
-    #     ls "${{ steps.thisaction.outputs.prefix }}"
-    #     ls "${{ steps.thisaction.outputs.bindir }}/mclient${{ runner.os == 'Windows' && '.bat' || ''}}"
-    #     ls "${{ steps.thisaction.outputs.includedir }}/monetdb/monetdbe.h"
-    #     ls "${{ steps.thisaction.outputs.libdir }}/libmonetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
-
-    # - name: Test mclient --version
-    #   run: mclient --version
-
-    # - name: Try to connect with mclient
-    #   # does not work on Windows yet, don't know why  :( :( :(
-    #   if: runner.os != 'Windows'
-    #   run: mclient -L- -d demo -s 'select * from environment'
-
-    # - name: Set up venv for pymonetdb
-    #   run: |
-    #     python3 -m venv venv
-    #     python3 -c 'import os; print(os.path.join(os.getcwd(), "venv", "bin"))' >>$GITHUB_PATH
-
-    # - name: Try to connect with pymonetdb
-    #   run: |
-    #     python -m pip install pymonetdb
-    #     python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
-    #   shell: bash
 
