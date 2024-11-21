@@ -85,7 +85,7 @@ runs:
     run: |
       . '${{ steps.venv.outputs.activate }}'
       python -m pip install pymonetdb
-      python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.versionlookup.outputs.numeric }}"
+      python "$GITHUB_ACTION_PATH"/verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.versionlookup.outputs.numeric }}"
     shell: bash
 
   # This step picks up the github.output file generated

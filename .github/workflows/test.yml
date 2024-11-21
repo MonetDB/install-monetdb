@@ -41,10 +41,12 @@ jobs:
     steps:
 
     - uses: actions/checkout@v4
+      with:
+        path: action-checkout
 
     - name: Run the action
       id: thisaction
-      uses: ./.
+      uses: ./action-checkout
 
     - name: Check activity output parameters
       run: |
@@ -61,7 +63,7 @@ jobs:
         ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m venv "$RUNNER_TEMP"/venv
         . "$RUNNER_TEMP/venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/activate"
         python -m pip install pymonetdb
-        python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
+        python action-checkout/verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
       shell: bash
 
 
