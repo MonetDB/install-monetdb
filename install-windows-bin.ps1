@@ -57,7 +57,7 @@ Write-Output "========== Update GitHub contexts =========="
 Add-Content github.output "prefix=$main_prefix"
 Add-Content github.output "bindir=$main_prefix"
 Add-Content github.output "includedir=$main_prefix\include\monetdb"
-Add-Content github.output "libdir=$main_prefix\bin"
+Add-Content github.output "libdir=$main_prefix\lib"
 Add-Content github.output "dynsuffix=dll"
 Write-Output "---------- github.output ----------"
 Get-Content $env:GITHUB_OUTPUT

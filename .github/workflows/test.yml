@@ -23,7 +23,7 @@ jobs:
           - ubuntu-22.04        # intel
           - ubuntu-20.04        # intel
           - macos-13            # intel
-          #- macos-12            # intel disabled because it builds monetdb from source
+          #- macos-12            # intel disabled because Homebrew builds monetdb from source there, which costs many extra actions minutes
           - macos-15            # arm
           - macos-14            # arm
           - windows-2022        # intel
@@ -53,7 +53,7 @@ jobs:
         ls "${{ steps.thisaction.outputs.prefix }}"
         ls "${{ steps.thisaction.outputs.bindir }}/mclient${{ runner.os == 'Windows' && '.bat' || ''}}"
         ls "${{ steps.thisaction.outputs.includedir }}/monetdbe.h"
-        ls "${{ steps.thisaction.outputs.libdir }}/${{ (runner.os != 'Windows' && 'lib') || '' }}monetdbe.${{ steps.thisaction.outputs.dynsuffix }}"
+        ls "${{ steps.thisaction.outputs.libdir}}/${{ runner.os != 'Windows' && 'lib' || ''}}monetdbe.${{ runner.os == 'Windows' && 'lib' || steps.thisaction.outputs.dynsuffix }}"
 
     - name: Test mclient --version
       run: mclient --version
