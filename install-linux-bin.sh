@@ -68,6 +68,7 @@ install_rpms() {
     yum -y install "${pkgs[@]/%/-$REQUESTED_MONETDB_VERSION}"
 }
 
+
 # Install the packages
 if type -P yum >/dev/null; then
     install_rpms

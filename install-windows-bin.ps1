@@ -38,8 +38,11 @@ Remove-Item "$main_prefix\pyapi_locatepython3.bat"
 
 Write-Output "========== Update PATH =========="
 Write-Output "old PATH: $env:PATH"
+# write it to $GITHUB_PATH so future steps have it
 Add-Content $env:GITHUB_PATH "$main_prefix"
+# add it to the environment so the rest of this script has it
 $env:PATH += "$main_prefix"
+# verbose is good
 Write-Output "new PATH: $env:PATH"
 
 Write-Output "========== Start the server =========="

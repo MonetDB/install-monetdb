@@ -21,7 +21,9 @@ while True:
     for a in addrs:
         print(f'Connecting to {a}', end='', flush=True)
         try:
-            timeout = max(0.2, min(deadline - time.time(), 2.0))
+            timeout = deadline = time.time()
+            timeout = min(timeout, 2.0)    # never more than 2s
+            timout = max(0.2, timeout)     # never less than 0.2s
             sock = socket.create_connection(a, timeout=timeout)
             print(' ==> connected!')
             print('Bye')
@@ -38,26 +40,3 @@ while True:
     print(f'Sleeping {sleep_time:.2f}s')
     time.sleep(sleep_time)
     sleep_interval *= 1.5
-
-duration = 1.5
-print(f'Sleeping {duration}s')
-time.sleep(duration)
-
-ok = False
-for a in addrs:
-    print(f"Connecting to {a}")
-    try:
-        sock = socket.create_connection(a, timeout=5.0)
-    except OSError as e:
-        print(f"==> failed: {e}")
-        continue
-    local_addr = sock.getsockname()
-    peer_addr = sock.getpeername()
-    print(f"==> connected: local={local_addr}, peer={peer_addr}")
-    ok = True
-    break
-
-if not ok:
-    exit(1)
-
-print("Bye")
