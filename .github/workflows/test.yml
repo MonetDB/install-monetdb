@@ -1,6 +1,7 @@
 name: Test the Install Action
 on:
   push:
+    branches: '*'
 jobs:
 
   documentation-example:
@@ -23,7 +24,7 @@ jobs:
           - ubuntu-22.04        # intel
           - ubuntu-20.04        # intel
           - macos-13            # intel
-          #- macos-12            # intel disabled because Homebrew builds monetdb from source there, which costs many extra actions minutes
+          #- macos-12            # intel; disabled because Homebrew builds monetdb from source there, which costs many extra actions minutes
           - macos-15            # arm
           - macos-14            # arm
           - windows-2022        # intel
