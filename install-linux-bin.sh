@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 
 set -e -x
 
@@ -72,8 +72,10 @@ install_rpms() {
 # Install the packages
 if type -P yum >/dev/null; then
     install_rpms
+    echo "dbfarm=/usr/local/dbfarm" >>github.output
 elif type -P apt-get >/dev/null; then
     install_debs
+    echo "dbfarm=/var/monetdb5/dbfarm" >>github.output
 else
     echo 'Cannot find yum or apt-get'
     exit 1
@@ -89,7 +91,7 @@ echo "dynsuffix=so" >>github.output
 
 
 # Start and create database
-sudo systemctl enable monetdbd
+#sudo systemctl enable monetdbd
 if sudo systemctl start monetdbd; then
     # running on a 'real' host
     true
@@ -100,6 +102,7 @@ else
     sudo chown monetdb:monetdb "$DBFARM"
     sudo -u monetdb monetdbd create "$DBFARM"
     sudo -u monetdb monetdbd start "$DBFARM"
+    echo "dbfarm=$DBFARM" >>github.output
 fi
 
 sudo -u monetdb monetdb create -pmonetdb demo monetdb

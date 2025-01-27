@@ -56,6 +56,14 @@ jobs:
         ls "${{ steps.thisaction.outputs.includedir }}/monetdbe.h"
         ls "${{ steps.thisaction.outputs.libdir}}/${{ runner.os != 'Windows' && 'lib' || ''}}monetdbe.${{ runner.os == 'Windows' && 'lib' || steps.thisaction.outputs.dynsuffix }}"
 
+    - name: Check dbfarm output parameter
+      if: runner.os != 'Windows'
+      env:
+        FARM: "${{ steps.thisaction.outputs.dbfarm }}"
+      run: |
+        sudo ls -la "$FARM"
+        sudo ls -l "$FARM"/.merovingian_properties
+
     - name: Test mclient --version
       run: mclient --version
 

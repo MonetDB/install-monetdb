@@ -38,3 +38,4 @@ echo "bindir=$prefix/bin" >>github.output
 echo "includedir=$prefix/include/monetdb" >>github.output
 echo "libdir=$prefix/lib" >>github.output
 echo "dynsuffix=dylib" >>github.output
+echo "dbfarm=$DBFARM" >>github.output

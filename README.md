@@ -59,6 +59,8 @@ Outputs
 * **includedir**: Directory where header files have been installed.
   Contains `monetdbe_config.h`.
 
+* **dbfarm**: Location of the dbfarm.
+  Except on Windows because monetdbd does not support Windows.
 
 
 [MonetDB]: https://monetdb.org/

@@ -24,6 +24,9 @@ outputs:
   versionnumber:
     description: "installed version of MonetDB, for example 11.51.5"
     value: ${{ steps.versionlookup.outputs.numeric }}
+  dbfarm:
+    description:  "location of the started dbfarm (not on Windows)"
+    value: ${{ steps.set_output.outputs.dbfarm }}
 
 # input: version
 # output: version_number
