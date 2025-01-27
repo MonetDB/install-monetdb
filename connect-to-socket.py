@@ -23,7 +23,7 @@ while True:
         try:
             timeout = deadline - time.time()
             timeout = min(timeout, 2.0)    # never more than 2s
-            timout = max(0.2, timeout)     # never less than 0.2s
+            timeout = max(0.2, timeout)     # never less than 0.2s
             sock = socket.create_connection(a, timeout=timeout)
             print(' ==> connected!')
             print('Bye')
