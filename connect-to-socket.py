@@ -10,7 +10,7 @@ addrs = [
     ('127.0.0.1', 50_000),
 ]
 
-duration = 10.0
+duration = 30.0
 start_time = time.time()
 deadline = start_time + duration
 sleep_interval = 0.3
@@ -21,7 +21,7 @@ while True:
     for a in addrs:
         print(f'Connecting to {a}', end='', flush=True)
         try:
-            timeout = deadline = time.time()
+            timeout = deadline - time.time()
             timeout = min(timeout, 2.0)    # never more than 2s
             timout = max(0.2, timeout)     # never less than 0.2s
             sock = socket.create_connection(a, timeout=timeout)
