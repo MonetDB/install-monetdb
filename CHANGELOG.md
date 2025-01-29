@@ -6,6 +6,18 @@ Unreleased
 ----------
 
 
+Version 0.7.0 - 2025-01-29
+--------------------------
+
+Features:
+
+* Expose `dbfarm` output that gives the location of the started
+  DB farm. (Not on Windows)
+
+Bug fixes:
+
+* Fix timeout calculation while waiting for server to start.
+
 
 Version 0.6.0 - 2024-12-05
 --------------------------
