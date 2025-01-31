@@ -1,6 +1,7 @@
 Param(
     $main_url = $(throw "Usage: install-windows-bin.ps1 MAIN_URL ODBC_URL"),
-    $odbc_url = $(throw "Usage: install-windows-bin.ps1 MAIN_URL ODBC_URL")
+    $odbc_url = $(throw "Usage: install-windows-bin.ps1 MAIN_URL ODBC_URL"),
+    $start_server = "true"
 )
 
 # one day we'll make this configurable
@@ -45,13 +46,17 @@ $env:PATH += "$main_prefix"
 # verbose is good
 Write-Output "new PATH: $env:PATH"
 
-Write-Output "========== Start the server =========="
-$opts = @{
-    FilePath = "$main_prefix\MSQLserver.bat"
-    #NoNewWindow = $true
-    #ArgumentList = "--set","embedded_py=false"
+if ($start_server -eq "true") {
+    Write-Output "========== Start the server =========="
+    $opts = @{
+        FilePath = "$main_prefix\MSQLserver.bat"
+        #NoNewWindow = $true
+        #ArgumentList = "--set","embedded_py=false"
+    }
+    Start-Process @opts
+} else {
+    Write-Output "========== (Not starting the server) =========="
 }
-Start-Process @opts
 
 Write-Output "========== Update GitHub contexts =========="
 # We write to 'github.output' rather than $env:GITHUB_OUTPUT

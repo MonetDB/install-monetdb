@@ -5,6 +5,10 @@ inputs:
     description: "Version of MonetDB to install"
     required: false
     default: Latest
+  start:
+    description: "Start the server if this is equal to 'true' (the default)"
+    required: false
+    default: "true"
 outputs:
   prefix:
     description: directory prefix under which everything has been installed
@@ -48,24 +52,25 @@ runs:
     run: |
       echo "$GITHUB_ACTION_PATH"
       ls "$GITHUB_ACTION_PATH"
-      "$GITHUB_ACTION_PATH"/install-linux-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
+      "$GITHUB_ACTION_PATH"/install-linux-bin.sh "${{ steps.versionlookup.outputs.numeric }}" "${{ inputs.start }}"
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output
   - name: MacOS Homebrew Install
     if: runner.os == 'macOS'
     run: |
-      "$GITHUB_ACTION_PATH"/install-macos-bin.sh "${{ steps.versionlookup.outputs.numeric }}"
+      "$GITHUB_ACTION_PATH"/install-macos-bin.sh "${{ steps.versionlookup.outputs.numeric }}" "${{ inputs.start }}"
     shell: bash
 
   # This step leaves GITHUB_OUTPUT in the file github.output.
   # It also updates $GITHUP_PATH.
   - name: Windows MSI Install
     if: runner.os == 'Windows'
-    run: ${{ github.action_path}}\install-windows-bin.ps1 "${{ steps.versionlookup.outputs.main_msi }}" "${{ steps.versionlookup.outputs.odbc_msi }}"
+    run: ${{ github.action_path}}\install-windows-bin.ps1 "${{ steps.versionlookup.outputs.main_msi }}" "${{ steps.versionlookup.outputs.odbc_msi }}" "${{ inputs.start }}"
     shell: pwsh
 
   - name: Check whether the server is really running
+    if: inputs.start == true || inputs.start == 'true'
     run: python3 "$GITHUB_ACTION_PATH"/connect-to-socket.py
     shell: bash
 
@@ -77,6 +82,7 @@ runs:
 
   - name: Create a scratch venv
     id: venv
+    if: inputs.start == true || inputs.start == 'true'
     # The python / python3 conditional is needed on windows-2019 runners
     run: |
       ${{ runner.os == 'Windows' && 'python' || 'python3' }} -m venv "$RUNNER_TEMP"/install-monetdb-venv
@@ -85,6 +91,7 @@ runs:
     shell: bash
 
   - name: Verify that the correct version has been installed
+    if: inputs.start == true || inputs.start == 'true'
     run: |
       . '${{ steps.venv.outputs.activate }}'
       python -m pip install pymonetdb

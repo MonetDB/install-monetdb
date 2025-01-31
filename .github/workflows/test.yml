@@ -121,3 +121,39 @@ jobs:
         python verify-with-pymonetdb.py monetdb:///demo --expect-version="${{ steps.thisaction.outputs.versionnumber }}"
       shell: bash
 
+  without-starting:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Run this action
+        id: thisaction
+        uses: ./.
+        with:
+          start: false
+
+      - name: Expect mclient to be installed
+        run: mclient --version
+
+      - name: Expect port 50_000 to be free
+        run: import socket; socket.create_server(('127.0.0.1', 50_000))
+        shell: python
+
+      - name: Expect dbfarm output to be empty
+        run: test -z "${{ steps.thisaction.outputs.dbfarm }}"
+        shell: bash
+
+      - name: Expect other outputs to be set
+        run: |
+          ls "${{ steps.thisaction.outputs.prefix }}"
+          ls "${{ steps.thisaction.outputs.bindir }}/mclient${{ runner.os == 'Windows' && '.bat' || ''}}"
+          ls "${{ steps.thisaction.outputs.includedir }}/monetdbe.h"
+          ls "${{ steps.thisaction.outputs.libdir}}/${{ runner.os != 'Windows' && 'lib' || ''}}monetdbe.${{ runner.os == 'Windows' && 'lib' || steps.thisaction.outputs.dynsuffix }}"

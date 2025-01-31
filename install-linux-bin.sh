@@ -3,7 +3,9 @@
 set -e -x
 
 REQUESTED_MONETDB_VERSION="${1?}"
+START_MONETDB="${2-true}"
 
+DBFARM=""
 
 install_debs() {
     source "/etc/os-release"
@@ -72,10 +74,10 @@ install_rpms() {
 # Install the packages
 if type -P yum >/dev/null; then
     install_rpms
-    echo "dbfarm=/usr/local/dbfarm" >>github.output
+    DBFARM=/usr/local/dbfarm
 elif type -P apt-get >/dev/null; then
     install_debs
-    echo "dbfarm=/var/monetdb5/dbfarm" >>github.output
+    DBFARM=/var/monetdb5/dbfarm
 else
     echo 'Cannot find yum or apt-get'
     exit 1
@@ -89,6 +91,11 @@ echo "includedir=/usr/include/monetdb" >>github.output
 echo "libdir=$(pkg-config --variable=libdir monetdbe)" >>github.output
 echo "dynsuffix=so" >>github.output
 
+
+# Leave early if we don't have to start a daemon
+if [ 'true' != "$START_MONETDB" ]; then
+    exit 0
+fi
 
 # Start and create database
 #sudo systemctl enable monetdbd
@@ -106,3 +113,5 @@ else
 fi
 
 sudo -u monetdb monetdb create -pmonetdb demo monetdb
+
+echo "dbfarm=$DBFARM" >>github.output

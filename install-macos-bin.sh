@@ -4,6 +4,7 @@ set -e -x
 
 DBFARM=/usr/local/dbfarm
 #VERSION="${1?}"
+START_MONETDB="${2-true}"
 
 # Our Homebrew packaging doesn't seem to support versioning. The article at
 # https://cmichel.medium.com/how-to-install-an-old-package-version-with-brew-cc1c567dd088
@@ -25,6 +26,19 @@ brew update
 
 brew install monetdb   # @"$VERSION"
 
+prefix="$(brew --prefix)"
+echo "prefix=$prefix" >>github.output
+echo "bindir=$prefix/bin" >>github.output
+echo "includedir=$prefix/include/monetdb" >>github.output
+echo "libdir=$prefix/lib" >>github.output
+echo "dynsuffix=dylib" >>github.output
+
+
+# Leave early if we don't have to start a daemon
+if [ 'true' != "$START_MONETDB" ]; then
+    exit 0
+fi
+
 sudo mkdir "$DBFARM"
 sudo chown "$USER" "$DBFARM"
 monetdbd create "$DBFARM"
@@ -32,10 +46,4 @@ monetdbd start "$DBFARM"
 
 monetdb create -pmonetdb demo monetdb
 
-prefix="$(brew --prefix)"
-echo "prefix=$prefix" >>github.output
-echo "bindir=$prefix/bin" >>github.output
-echo "includedir=$prefix/include/monetdb" >>github.output
-echo "libdir=$prefix/lib" >>github.output
-echo "dynsuffix=dylib" >>github.output
 echo "dbfarm=$DBFARM" >>github.output

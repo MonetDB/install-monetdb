@@ -5,6 +5,10 @@ CHANGELOG
 Unreleased
 ----------
 
+Features:
+
+* Add setting 'start' that controls whether to start the server.
+
 
 Version 0.7.0 - 2025-01-29
 --------------------------

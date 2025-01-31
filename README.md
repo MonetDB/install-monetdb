@@ -43,6 +43,8 @@ Inputs
   (Aug2024-SP1). Names with underscores (Aug2024_SP1) are also accepted.
   The default is to install the latest version.
 
+* **start**: Start the server if this is "true". Default value: "true".
+  On Linux and MacOS this starts monetdbd. On Windows it starts mserver5.
 
 Outputs
 -------
