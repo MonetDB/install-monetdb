@@ -5,6 +5,9 @@ CHANGELOG
 Unreleased
 ----------
 
+Version 0.8.0 - 2025-01-31
+--------------------------
+
 Features:
 
 * Add setting 'start' that controls whether to start the server.
