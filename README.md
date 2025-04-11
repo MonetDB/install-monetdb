@@ -10,11 +10,11 @@ For example,
   run_mclient:
     runs-on: ubuntu-latest
     steps:
-    - uses: MonetDB/install-monetdb@v0.6
+    - uses: MonetDB/install-monetdb@v0.8.1
     - run: mclient -d demo -s 'SELECT * FROM environment'
 ```
 
-The step `uses: MonetDB/install-monetdb@v0.6` takes care of
+The step `uses: MonetDB/install-monetdb@v0.8.1` takes care of
 1. Installing MonetDB and putting it on the PATH
 2. Creating a database 'demo'
 3. Starting the server
