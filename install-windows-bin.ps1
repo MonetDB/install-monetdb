@@ -4,15 +4,14 @@ Param(
     $start_server = "true"
 )
 
-# one day we'll make this configurable
-$main_prefix = "C:\Program Files\MonetDB\MonetDB5"
-$odbc_prefix = "C:\Program Files\MonetDB\MonetDB ODBC Driver"
+# make sure to have something here without spaces, I don't understand
+# powershell quoting and escaping well enough
+$main_prefix = "C:\MonetDB"
 
 
 Write-Output "main_url=$main_url"
 Write-Output "odbc_url=$odbc_url"
 Write-Output "main_prefix=$main_prefix"
-Write-Output "odbc_prefix=$odbc_prefix"
 
 Write-Output "========== MONETDB ========="
 $main_file="c:\monetdb-main.msi"
@@ -21,7 +20,13 @@ Write-Output "---------- Download '$main_file' from '$main_url'"
 Get-ChildItem $main_file
 Write-Output "---------- Install '$main_file'"
 #$main_proc = Start-Process "$main_file" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
-Start-Process "$main_file" -ArgumentList '/passive /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
+$result = Start-Process msiexec.exe -ArgumentList "/i $main_file /L* c:\main.log /passive /norestart INSTALLDIR=$main_prefix INSTALLLEVEL=1000 MSIRMSHUTDOWN=2" -Wait
+Write-Output "---------- exit code ${result.ExitCode}"
+Write-Output "---------- log output:"
+Get-Content -Path "c:\main.log"
+if ($result.ExitCode) {
+    Throw "msi install failed with exit code '${result.ExitCode}'"
+}
 Write-Output "---------- OK"
 
 Write-Output "========== ODBC ========="
@@ -30,10 +35,20 @@ Write-Output "---------- Download '$odbc_file' from '$odbc_url'"
 (New-Object System.Net.WebClient).DownloadFile("$odbc_url", "$odbc_file");
 Get-ChildItem $odbc_file
 Write-Output "---------- Install '$odbc_file'"
-Start-Process "$odbc_file" -ArgumentList '/quiet /passive /qn /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2' -Wait
+$result = Start-Process msiexec.exe -ArgumentList "/i $odbc_file /L* c:\odbc.log /passive /norestart INSTALLLEVEL=1000 MSIRMSHUTDOWN=2" -Wait
+Write-Output "---------- exit code ${result.ExitCode}"
+Write-Output "---------- log output:"
+Get-Content -Path "c:\odbc.log"
+if ($result.ExitCode) {
+    Throw "msi install failed with exit code '${result.ExitCode}'"
+}
 Write-Output "---------- OK"
 
-Write-Output "========== disable embedded Python =========="
+
+Write-Output "========== DIR DIR DIR =========="
+Get-ChildItem -Path "$main_prefix" -Recurse -Depth 100 -Force
+
+Write-Output "========== Disable embedded Python =========="
 # The version of Python embedded in MonetDB is unlikely to match this system's Python.
 Remove-Item "$main_prefix\pyapi_locatepython3.bat"
 
